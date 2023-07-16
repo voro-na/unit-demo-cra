@@ -32,14 +32,14 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: jestReport
-          path: jestReport.xml
+          path: junit.xml
           retention-days: 30
 
       - name: Install Playwright
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test --project=headlesschrome
 
         if: always()
       - uses: actions/upload-artifact@v3
