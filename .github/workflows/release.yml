@@ -34,7 +34,7 @@ jobs:
       - name: Get tags
         id: get_tag
         run: |
-          CURRENT_TAG==${{ github.ref_name }}
+          CURRENT_TAG=${{ github.ref_name }}
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^)
           echo "current_tag=${CURRENT_TAG}" >> "$GITHUB_ENV"
           echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_ENV"
