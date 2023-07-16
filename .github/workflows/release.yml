@@ -42,7 +42,7 @@ jobs:
       - name: Git log
         id: git-log
         run: |
-          git_log=$(git log --pretty=format:"- %s" "${{ steps.get_tags.outputs.previous }}...${{ steps.get_tags.outputs.current }}")
+          git_log=$(git log --pretty=format:"- %s" "${{ steps.get_tags.outputs.previous_tag }}...${{ steps.get_tags.outputs.current_tag }}")
           echo "::set-output name=git-log::$git_log"
       - name: Get commit date
         run: echo "date=$(git log -1 --format=%cd)">>"$GITHUB_ENV"
@@ -93,7 +93,7 @@ jobs:
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
-          issue-number: ${{ needs.create_issue.outputs.issue }}
+          issue-number: 1
           comment: "Build successfully uploaded to gh-pages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
