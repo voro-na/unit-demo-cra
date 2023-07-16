@@ -67,6 +67,14 @@ const config: PlaywrightTestConfig = {
         ...devices["Desktop Safari"],
       },
     },
+    {
+      name: "headless",
+      use: {
+        ...devices["Desktop Chrome"],
+        headless: true
+      },
+    },
+
 
     /* Test against mobile viewports. */
     // {
