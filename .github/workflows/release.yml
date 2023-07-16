@@ -42,7 +42,7 @@ jobs:
       - name: Git log
         id: git-log
         run: |
-          git_log=$(git log --pretty=format:"- %s" "${{ env.prev_tag }}..${{ env.current_tag }}")
+          git_log=$(git log --pretty=format:"- %s" "${{ steps.get_tags.outputs.previous }}...${{ steps.get_tags.outputs.current }}")
           echo "::set-output name=git-log::$git_log"
       - name: Get commit date
         run: echo "date=$(git log -1 --format=%cd)">>"$GITHUB_ENV"
