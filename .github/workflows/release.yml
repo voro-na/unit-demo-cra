@@ -57,7 +57,7 @@ jobs:
           title: Release ${{ env.current_tag }}
           body: |
             Author: ${{ github.actor }}
-            Date: ${{ env.date }
+            Date: ${{ env.date }}
             Changelog:
             ${{ steps.git-log.outputs.git-log }}
 
