@@ -96,3 +96,5 @@ jobs:
           issue-number: ${{needs.build.outputs.output1}}
           comment: |
             Build successfully uploaded to gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
