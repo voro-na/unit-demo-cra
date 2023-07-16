@@ -26,20 +26,20 @@ jobs:
         run: npm ci
 
       - name: Unit tests
-        run: npm run test-ci
+        run: npx jest --outputDirectory=/test-results
 
         if: always()
       - uses: actions/upload-artifact@v3
         with:
           name: jestReport
-          path: junit.xml
+          path: /test-results
           retention-days: 30
 
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npx playwright test --project=headlesschrome
+        run: npx playwright test
 
         if: always()
       - uses: actions/upload-artifact@v3
