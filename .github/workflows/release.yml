@@ -34,15 +34,15 @@ jobs:
       - name: Get tags
         id: get_tag
         run: |
-          CURRENT_TAG=${{ github.ref_name }} 
+          CURRENT_TAG==${{ github.ref_name }}
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^)
-          echo "current_tag=${CURRENT_TAG}" >> "$GITHUB_OUTPUT"
-          echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
+          echo "current_tag=${CURRENT_TAG}" >> "$GITHUB_ENV"
+          echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_ENV"
 
       - name: Git log
         id: git-log
         run: |
-          git_log=$(git log --pretty=format:"- %s" "${{ steps.get_tags.outputs.previous_tag }}...${{ steps.get_tags.outputs.current_tag }}")
+          git_log=$(git log --pretty=format:"- %s" "${{ env.previous_tag }}...${{ env.current_tag }}")
           echo "::set-output name=git-log::$git_log"
       - name: Get commit date
         run: echo "date=$(git log -1 --format=%cd)">>"$GITHUB_ENV"
@@ -89,11 +89,4 @@ jobs:
           npm i gh-pages
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
-
-      - name: Close Issue
-        uses: peter-evans/close-issue@v3
-        with:
-          issue-number: 1
-          comment: "Build successfully uploaded to gh-pages"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+=
