@@ -39,11 +39,11 @@ jobs:
           echo "current_tag=${CURRENT_TAG}" >> "$GITHUB_OUTPUT"
           echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
 
-      - name: Get log
+      - name: Git log
         id: git-log
         run: |
-          CHANGELOG=$(git log --pretty=format:"- %s" "${{ env.previous }}...${{ env.current }}")
-          echo "::set-output name=git-log::$CHANGELOG"
+          git_log=$(git log --pretty=format:"- %s" "${{ env.prev_tag }}..${{ env.current_tag }}")
+          echo "::set-output name=git-log::$git_log"
       - name: Get commit date
         run: echo "date=$(git log -1 --format=%cd)">>"$GITHUB_ENV"
 
@@ -59,7 +59,7 @@ jobs:
             Author: ${{ github.actor }}
             Date: ${{ env.date }}
             Changelog:
-            ${{ steps.git-log.outputs.git-log }}
+              ${{ steps.git-log.outputs.git-log }}
 
           pinned: false
           close-previous: false
@@ -89,11 +89,11 @@ jobs:
           npm i gh-pages
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
-  close_issue:
-    runs-on: ubuntu-latest
-    needs: build_deploy
-    steps:
+
       - name: Close Issue
-        run: gh issue close --comment "Auto-closing issue" "1"
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ needs.create_issue.outputs.issue }}
+          comment: "Build successfully uploaded to gh-pages"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
