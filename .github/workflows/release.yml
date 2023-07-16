@@ -23,7 +23,7 @@ jobs:
   create_issue:
     name: Create Release issue
     runs-on: ubuntu-latest
-    needs:  create branch
+    needs:  create_branch
     permissions:
       issues: write
     steps:
