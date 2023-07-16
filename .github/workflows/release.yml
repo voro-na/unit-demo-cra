@@ -1,0 +1,98 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v\d+'
+
+jobs:
+  create branch:
+    name: Create release branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create release branch
+        run: |
+          BRANCH_NAME=release-${{ github.ref_name }}
+          git checkout -b $BRANCH_NAME
+          git push -u origin $BRANCH_NAME
+
+  create_issue:
+    name: Create Release issue
+    runs-on: ubuntu-latest
+    needs:  create branch
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get tags
+        id: get_tag
+        run: |
+          CURRENT_TAG=${{ github.ref_name }} 
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^)
+          echo "current_tag=${CURRENT_TAG}" >> "$GITHUB_OUTPUT"
+          echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate log
+        id: generate_log
+        run: |
+          CHANGELOG=$(git log --pretty=format:"- %s" "${{ env.previous }}...${{ env.current }}")
+          echo "::set-output name=log::$CHANGELOG"
+
+      - name: Create release issue
+        uses: imjohnbo/issue-bot@3
+        id: issue-bot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          labels: "RELEASE"
+          title: Release ${{ github.ref_name }}
+          body: |
+            ## Author ${{ github.ref_name }}
+
+            Author: ${{ github.actor }}
+            
+            Changelog:
+
+            ${{ steps.generate_log.outputs.log }}
+
+          pinned: false
+          close-previous: false
+      - name: Output issue number
+        id: issue
+        run: |
+          echo "issue=${{ steps.issue-bot.outputs.issue-number }}">>"$GITHUB_OUTPUT"
+
+    tests-workflow:
+      uses: ./.github/workflows/tests.yaml
+
+    build-and-deploy:
+      needs: tests-workflow
+      concurrency: ci-${{ github.ref }}
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Install, build
+          run: |
+            npm ci
+            npm run build
+        - name: Deploy
+          uses: JamesIves/github-pages-deploy-action@v4
+          with:
+            folder: build
+    close-issue:
+      runs-on: ubuntu-latest
+      needs: [build, build-and-deploy]
+      steps:
+        - name: Close Issue
+          uses: peter-evans/close-issue@v3
+          with:
+            issue-number: ${{needs.build.outputs.output1}}
+            comment: |
+              Build successfully uploaded to gh-pages
