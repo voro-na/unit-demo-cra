@@ -69,11 +69,8 @@ jobs:
         run: |
           echo "issue=${{ steps.issue-bot.outputs.issue-number }}">>"$GITHUB_OUTPUT"
 
-    tests-workflow:
-      uses: ./.github/workflows/tests.yaml
-
     build-and-deploy:
-      needs: tests-workflow
+      needs:  create_issue
       concurrency: ci-${{ github.ref }}
       runs-on: ubuntu-latest
       steps:
